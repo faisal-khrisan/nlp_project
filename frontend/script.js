@@ -470,7 +470,10 @@ function setLoadingState(loading) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+    initInteractiveEffects();
+});
 
 // Update navigation on scroll
 window.addEventListener('scroll', () => {
@@ -493,4 +496,303 @@ window.addEventListener('scroll', () => {
             }
         }
     });
+
+    // Scroll reveal
+    revealOnScroll();
 });
+
+// ============================================
+// INTERACTIVE EFFECTS
+// ============================================
+
+function initInteractiveEffects() {
+    // Check if mobile for reduced animations
+    const isMobile = window.innerWidth <= 768;
+
+    // Add reveal class to sections with different directions
+    document.querySelectorAll('.analyzer-section').forEach(el => {
+        el.classList.add('slide-in-left');
+    });
+
+    document.querySelectorAll('.compare-section').forEach(el => {
+        el.classList.add('slide-in-right');
+    });
+
+    document.querySelectorAll('.about-section').forEach(el => {
+        el.classList.add('slide-in-up');
+    });
+
+    // Add scale-in to cards
+    document.querySelectorAll('.tech-card').forEach((el, i) => {
+        el.classList.add('scale-in');
+        el.style.transitionDelay = `${i * 0.1}s`;
+    });
+
+    // Add blur-in to model info
+    document.querySelectorAll('.model-info').forEach(el => {
+        el.classList.add('blur-in');
+    });
+
+    // Add rotate-in to compare cards
+    document.querySelectorAll('.compare-card').forEach((el, i) => {
+        el.classList.add('rotate-in');
+        el.style.transitionDelay = `${i * 0.2}s`;
+    });
+
+    // Add stagger to tech grid
+    const techGrid = document.querySelector('.tech-grid');
+    if (techGrid) techGrid.classList.add('stagger-children');
+
+    // Add ripple effect to buttons
+    document.querySelectorAll('.analyze-btn, .compare-btn, .cta-button, .phone-btn').forEach(btn => {
+        btn.classList.add('ripple');
+    });
+
+    // Add pulse effect to CTA
+    const ctaButton = document.querySelector('.cta-button');
+    if (ctaButton) ctaButton.classList.add('pulse-effect');
+
+    // Add floating animation to phones
+    document.querySelectorAll('.phone').forEach((phone, i) => {
+        phone.style.animationDelay = `${i * 0.5}s`;
+    });
+
+    // Start animated counters
+    animateCounters();
+
+    // Create floating particles (reduced on mobile)
+    createParticles(isMobile ? 8 : 15);
+
+    // Initial reveal check
+    setTimeout(revealOnScroll, 100);
+
+    // Add parallax effect on mouse move (desktop only)
+    if (!isMobile) {
+        addParallaxEffect();
+    }
+}
+
+// Scroll reveal animation
+function revealOnScroll() {
+    const animatedElements = document.querySelectorAll('.reveal, .slide-in-left, .slide-in-right, .slide-in-up, .scale-in, .rotate-in, .blur-in');
+    const windowHeight = window.innerHeight;
+
+    animatedElements.forEach(el => {
+        const top = el.getBoundingClientRect().top;
+        const revealPoint = 120;
+
+        if (top < windowHeight - revealPoint) {
+            el.classList.add('active');
+        }
+    });
+
+    // Stagger children
+    document.querySelectorAll('.stagger-children').forEach(el => {
+        const top = el.getBoundingClientRect().top;
+        if (top < windowHeight - 100) {
+            el.classList.add('active');
+        }
+    });
+}
+
+// Animate counters
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-value');
+
+    counters.forEach(counter => {
+        const text = counter.textContent;
+        const hasPercent = text.includes('%');
+        const hasComma = text.includes(',');
+        const target = parseInt(text.replace(/[^0-9]/g, ''));
+
+        if (isNaN(target)) return;
+
+        let current = 0;
+        const increment = target / 50;
+        const duration = 1500;
+        const stepTime = duration / 50;
+
+        counter.classList.add('count-up');
+
+        const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+                let displayValue = Math.floor(current);
+                if (hasComma) displayValue = displayValue.toLocaleString();
+                if (hasPercent) displayValue += '%';
+                counter.textContent = displayValue;
+                setTimeout(updateCounter, stepTime);
+            } else {
+                counter.textContent = text;
+                counter.classList.add('counter-glow');
+            }
+        };
+
+        // Start when visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(updateCounter, 300);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        observer.observe(counter);
+    });
+}
+
+// Create floating particles
+function createParticles(count = 15) {
+    const colors = ['#6366f1', '#8b5cf6', '#0ea5e9', '#10b981'];
+    const container = document.body;
+
+    for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.cssText = `
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            width: ${3 + Math.random() * 5}px;
+            height: ${3 + Math.random() * 5}px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            animation: floatUp ${5 + Math.random() * 5}s ease-in-out infinite;
+            animation-delay: ${Math.random() * 5}s;
+        `;
+        container.appendChild(particle);
+    }
+}
+
+// Add parallax effect on mouse movement
+function addParallaxEffect() {
+    const hero = document.querySelector('.hero');
+    const phones = document.querySelectorAll('.phone');
+    const orbs = document.querySelectorAll('.orb');
+    
+    if (!hero) return;
+    
+    document.addEventListener('mousemove', (e) => {
+        const mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        const mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        
+        // Subtle phone movement
+        phones.forEach((phone, i) => {
+            const direction = i === 0 ? 1 : -1;
+            const x = mouseX * 10 * direction;
+            const y = mouseY * 5;
+            phone.style.transform = `translate(${x}px, ${y}px)`;
+        });
+        
+        // Move orbs more dramatically
+        orbs.forEach((orb, i) => {
+            const speed = (i + 1) * 15;
+            const x = mouseX * speed;
+            const y = mouseY * speed;
+            orb.style.transform = `translate(${x}px, ${y}px)`;
+        });
+    });
+    
+    // Reset on mouse leave
+    hero.addEventListener('mouseleave', () => {
+        phones.forEach(phone => {
+            phone.style.transform = 'translate(0, 0)';
+            phone.style.transition = 'transform 0.5s ease';
+        });
+        orbs.forEach(orb => {
+            orb.style.transform = 'translate(0, 0)';
+            orb.style.transition = 'transform 0.5s ease';
+        });
+    });
+    
+    hero.addEventListener('mouseenter', () => {
+        phones.forEach(phone => {
+            phone.style.transition = 'transform 0.1s ease';
+        });
+        orbs.forEach(orb => {
+            orb.style.transition = 'transform 0.1s ease';
+        });
+    });
+}
+
+// Show confetti on successful analysis
+function showConfetti() {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    document.body.appendChild(container);
+
+    const colors = ['#6366f1', '#8b5cf6', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444'];
+
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.cssText = `
+            left: ${Math.random() * 100}%;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            animation-delay: ${Math.random() * 0.5}s;
+            animation-duration: ${2 + Math.random() * 2}s;
+        `;
+        container.appendChild(confetti);
+    }
+
+    setTimeout(() => container.remove(), 4000);
+}
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    // Remove existing toast
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const icon = type === 'success'
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+
+    toast.innerHTML = `${icon}<span>${message}</span>`;
+    document.body.appendChild(toast);
+
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    // Remove after delay
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
+}
+
+// Override displayResults to add confetti
+const originalDisplayResults = displayResults;
+displayResults = function (data) {
+    originalDisplayResults(data);
+
+    // Show confetti for positive sentiment
+    if (data.sentiment === 'Positive' && data.confidence > 0.6) {
+        showConfetti();
+        showToast('Positive sentiment detected! 🎉', 'success');
+    } else if (data.sentiment === 'Negative') {
+        showToast('Negative sentiment detected', 'error');
+    } else {
+        showToast('Analysis complete!', 'success');
+    }
+
+    // Add bounce animation to result
+    const resultContent = document.getElementById('result-content');
+    if (resultContent) {
+        resultContent.classList.add('bounce');
+        setTimeout(() => resultContent.classList.remove('bounce'), 800);
+    }
+};
+
+// Add typing effect to hero title
+function addTypingEffect() {
+    const title = document.querySelector('.hero-title .gradient-text');
+    if (title) {
+        title.classList.add('animated-gradient-text');
+    }
+}
+
+// Call typing effect
+setTimeout(addTypingEffect, 500);
