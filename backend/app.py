@@ -12,17 +12,38 @@ import numpy as np
 import pickle
 import os
 
-# Download NLTK data on startup
+# Set NLTK data path to /tmp for Vercel (serverless read-only filesystem)
 import nltk
 
-# Download all required NLTK data (quietly)
-print("📥 Downloading NLTK data...")
-nltk.download('punkt', quiet=True)
-nltk.download('stopwords', quiet=True)
-nltk.download('punkt_tab', quiet=True)
-print("✅ NLTK data ready!")
+# Use /tmp directory for NLTK data on Vercel (it's writable)
+nltk_data_path = '/tmp/nltk_data'
+if not os.path.exists(nltk_data_path):
+    os.makedirs(nltk_data_path, exist_ok=True)
+nltk.data.path.insert(0, nltk_data_path)
+
+# Download NLTK data to /tmp
+try:
+    nltk.download('punkt', download_dir=nltk_data_path, quiet=True)
+    nltk.download('stopwords', download_dir=nltk_data_path, quiet=True)
+    nltk.download('punkt_tab', download_dir=nltk_data_path, quiet=True)
+    print(" NLTK data ready!")
+except Exception as e:
+    print(f" NLTK download warning: {e}")
 
 from nltk.corpus import stopwords
+
+# Initialize stopwords with fallback
+try:
+    stop_words = set(stopwords.words('english'))
+except Exception:
+    # Fallback stopwords if NLTK data fails
+    stop_words = {'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 
+                  'your', 'yours', 'yourself', 'he', 'him', 'his', 'she', 'her', 
+                  'it', 'its', 'they', 'them', 'their', 'what', 'which', 'who', 
+                  'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were',
+                  'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
+                  'a', 'an', 'the', 'and', 'but', 'if', 'or', 'as', 'of', 'at', 'by',
+                  'for', 'with', 'about', 'into', 'to', 'from', 'in', 'on', 'not'}
 
 app = FastAPI(
     title="Sentiment Analyzer API",
@@ -42,7 +63,6 @@ app.add_middleware(
 # Global variables for models
 tfidf_vectorizer = None
 model = None
-stop_words = set(stopwords.words('english'))
 
 def clean_text(text: str) -> str:
     """Clean and preprocess text for model input"""
