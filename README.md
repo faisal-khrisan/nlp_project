@@ -98,10 +98,10 @@ curl -X POST "http://localhost:8000/analyze" \
 
 | Model | Method | Accuracy |
 |-------|--------|----------|
-| Model A | TF-IDF (Unigram) + Logistic Regression | ~88% |
-| Model B | TF-IDF (Unigram+Bigram) + Logistic Regression | ~92% |
-| Model C | Word2Vec + SVM | ~85% |
-| Model D | FastText + SVM | ~86% |
+| Model A | TF-IDF (Unigram) + Logistic Regression | ~71% |
+| Model B | TF-IDF (Unigram+Bigram) + Logistic Regression | ~72% |
+| Model C | Word2Vec + SVM | ~72% |
+| Model D | FastText + SVM | ~71% |
 
 ## 🎨 Tech Stack
 
