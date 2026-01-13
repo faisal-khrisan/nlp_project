@@ -24,28 +24,6 @@ cd backend
 pip install -r requirements.txt
 ```
 
-### 2. Export Trained Models (Optional)
-
-Run the following in your Jupyter notebook after training:
-
-```python
-import pickle
-import os
-
-os.makedirs("models", exist_ok=True)
-
-# Export TF-IDF vectorizer
-with open("models/tfidf_vectorizer.pkl", 'wb') as f:
-    pickle.dump(tfidf_bigram, f)
-
-# Export trained model
-with open("models/sentiment_model.pkl", 'wb') as f:
-    pickle.dump(logreg_bi, f)
-
-print("Models exported!")
-```
-
-Copy the `models` folder to `backend/models/`.
 
 ### 3. Start the API Server
 
