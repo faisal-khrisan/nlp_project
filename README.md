@@ -127,14 +127,9 @@ This project uses the [Mobile Reviews Sentiment and Specification](https://www.k
 ### Local Development
 Follow the Quick Start guide above.
 
-### Docker (Coming Soon)
-```bash
-docker-compose up
-```
-
 ### Cloud Deployment
-- **Backend**: Deploy to Railway, Render, or Heroku
-- **Frontend**: Deploy to Vercel, Netlify, or GitHub Pages
+- **Backend**: Deployed to  Vercel but you can deploy it to Railway, Render, or Heroku
+- **Frontend**: Deployed to Vercel, but you can deployt it to  Netlify, or GitHub Pages
 
 ## 📝 License
 
