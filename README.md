@@ -6,6 +6,9 @@ A stunning web application for analyzing customer sentiment in mobile phone revi
 ![Python](https://img.shields.io/badge/Python-3.8%2B-green)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-teal)
 
+
+# Veiw live demo :
+https://nlp-project-sentimentai.vercel.app/
 ## ✨ Features
 
 - **Real-time Sentiment Analysis**: Analyze any review text instantly
